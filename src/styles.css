@@ -72,11 +72,7 @@ button { cursor: pointer; }
 .sidebar-empty strong { color: #334155; font-size: 13px; }
 .sidebar-empty span { font-size: 10px; }
 .sidebar-empty button { margin-top: 8px; padding: 8px 12px; border: 1px solid #dbe2ea; border-radius: 8px; background: #fff; color: #334155; font-size: 11px; font-weight: 700; }
-.sidebar__footer { display: flex; gap: 8px; padding: 12px 18px; border-top: 1px solid #e2e8f0; background: #fff; color: #94a3b8; font-size: 9px; line-height: 1.35; }
-.legend-dot { width: 6px; height: 6px; flex: 0 0 6px; margin-top: 3px; border-radius: 50%; background: #94a3b8; }
 @media (max-width: 850px) { .app-shell { grid-template-columns: 1fr; grid-template-rows: 60vh 40vh; overflow: auto; height: auto; min-height: 100vh; } .map-panel { min-height: 60vh; } .sidebar { border-top: 1px solid #dbe2ea; border-left: 0; min-height: 40vh; } .brand-badge { top: 12px; left: 12px; } }
-
-/* Interactive marker popup and required list fields */
 .object-card { cursor: pointer; }
 .object-card__description { display: block; white-space: normal; overflow: visible; text-overflow: clip; }
 .map-marker { cursor: pointer; touch-action: manipulation; }

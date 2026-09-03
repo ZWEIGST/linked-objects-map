@@ -23,7 +23,7 @@ function handleToggle(event: Event, id: number) {
       <div>
         <p class="eyebrow">Объекты</p>
         <h1>Linked Object Map</h1>
-        <p class="sidebar__meta">{{ visibleCount }} из {{ store.markers.length }} объектов видно</p>
+        <p class="sidebar__meta">{{ visibleCount }} из {{ store.markers.length }} объектов на карте</p>
       </div>
       <div class="header-counter">{{ visibleCount }}</div>
     </header>
@@ -67,10 +67,5 @@ function handleToggle(event: Event, id: number) {
       <span>Все маркеры и карточки скрыты.</span>
       <button type="button" @click="emit('resetMap')">Вернуть объекты</button>
     </div>
-
-    <footer class="sidebar__footer">
-      <span class="legend-dot" />
-      <span>Цвет группы определяется по <b>title</b>. Связи строятся между видимыми объектами.</span>
-    </footer>
   </aside>
 </template>
