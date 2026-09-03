@@ -27,3 +27,7 @@ npm run build
 ## Карта
 
 Картографические тайлы предоставляются OpenStreetMap.
+
+##Посмотреть живое демо
+
+https://linked-objects-9aonl0fg4-zweigsts-projects.vercel.app/
