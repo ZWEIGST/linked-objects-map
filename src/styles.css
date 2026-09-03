@@ -17,16 +17,16 @@ button { cursor: pointer; }
 .brand-badge span { display: block; margin-top: 3px; color: #64748b; font-size: 10px; }
 .map-canvas { position: relative; width: 100%; height: 100%; overflow: hidden; background: #dfe7ec; touch-action: none; user-select: none; cursor: grab; }
 .map-canvas:active { cursor: grabbing; }
-.tile-layer, .map-overlay { position: absolute; inset: 0; }
+.tile-layer { position: absolute; inset: 0; }
 .tile-layer { overflow: hidden; }
 .map-tile { position: absolute; width: 256px; height: 256px; max-width: none; pointer-events: none; }
-.map-overlay { z-index: 3; pointer-events: none; }
-.connection-layer { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.connection-layer { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; z-index: 3; pointer-events: none; }
+.marker-layer { position: absolute; inset: 0; z-index: 10; pointer-events: none; }
 .map-marker { position: absolute; display: flex; align-items: center; gap: 7px; padding: 0; border: 0; background: transparent; transform: translate(-50%, -50%); pointer-events: auto; color: #172033; text-align: left; }
 .map-marker__dot { display: block; width: 17px; height: 17px; flex: 0 0 17px; border: 3px solid #fff; border-radius: 50%; background: var(--marker-color); box-shadow: 0 3px 9px rgba(15,23,42,.28); transition: transform .16s ease, box-shadow .16s ease; }
 .map-marker:hover .map-marker__dot, .map-marker--selected .map-marker__dot { transform: scale(1.28); box-shadow: 0 0 0 5px color-mix(in srgb, var(--marker-color) 22%, transparent), 0 4px 12px rgba(15,23,42,.3); }
 .map-marker__label { max-width: 130px; padding: 4px 7px; border: 1px solid rgba(255,255,255,.9); border-radius: 7px; background: rgba(255,255,255,.88); box-shadow: 0 2px 8px rgba(15,23,42,.13); font-size: 10px; font-weight: 700; line-height: 1; white-space: nowrap; opacity: .95; }
-.map-popup { position: absolute; z-index: 10; width: 235px; padding: 16px; border: 1px solid rgba(255,255,255,.9); border-radius: 14px; background: rgba(255,255,255,.97); box-shadow: 0 15px 40px rgba(15,23,42,.2); transform: translate(10px, calc(-100% - 14px)); pointer-events: auto; }
+.map-popup { position: absolute; z-index: 30; width: 235px; padding: 16px; border: 1px solid rgba(255,255,255,.9); border-radius: 14px; background: rgba(255,255,255,.97); box-shadow: 0 15px 40px rgba(15,23,42,.2); transform: translate(10px, calc(-100% - 14px)); pointer-events: auto; }
 .map-popup::after { content: ""; position: absolute; left: 12px; bottom: -7px; width: 13px; height: 13px; border-right: 1px solid rgba(255,255,255,.9); border-bottom: 1px solid rgba(255,255,255,.9); background: #fff; transform: rotate(45deg); }
 .map-popup__close { position: absolute; top: 7px; right: 9px; border: 0; background: transparent; color: #94a3b8; font-size: 20px; line-height: 1; }
 .map-popup__eyebrow { color: #64748b; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
@@ -64,7 +64,7 @@ button { cursor: pointer; }
 .object-card__topline { display: flex; align-items: baseline; gap: 7px; }
 .object-card__title { overflow: hidden; color: #1e293b; font-size: 12px; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
 .object-card__id { flex: 0 0 auto; color: #a0aec0; font-size: 9px; }
-.object-card__description { display: block; margin-top: 4px; overflow: hidden; color: #64748b; font-size: 10px; line-height: 1.35; text-overflow: ellipsis; white-space: nowrap; }
+.object-card__description { display: block; width: 100%; margin-top: 4px; overflow-wrap: anywhere; color: #64748b; font-size: 10px; line-height: 1.4; }
 .object-card__coords { display: block; margin-top: 6px; color: #a0aec0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 8px; }
 .object-card__checkbox { width: 15px; height: 15px; flex: 0 0 15px; margin: 1px 0 0; accent-color: #111827; cursor: pointer; }
 .sidebar-empty { display: flex; flex: 1; flex-direction: column; align-items: center; justify-content: center; gap: 7px; padding: 30px; color: #64748b; text-align: center; }
@@ -75,3 +75,10 @@ button { cursor: pointer; }
 .sidebar__footer { display: flex; gap: 8px; padding: 12px 18px; border-top: 1px solid #e2e8f0; background: #fff; color: #94a3b8; font-size: 9px; line-height: 1.35; }
 .legend-dot { width: 6px; height: 6px; flex: 0 0 6px; margin-top: 3px; border-radius: 50%; background: #94a3b8; }
 @media (max-width: 850px) { .app-shell { grid-template-columns: 1fr; grid-template-rows: 60vh 40vh; overflow: auto; height: auto; min-height: 100vh; } .map-panel { min-height: 60vh; } .sidebar { border-top: 1px solid #dbe2ea; border-left: 0; min-height: 40vh; } .brand-badge { top: 12px; left: 12px; } }
+
+/* Interactive marker popup and required list fields */
+.object-card { cursor: pointer; }
+.object-card__description { display: block; white-space: normal; overflow: visible; text-overflow: clip; }
+.map-marker { cursor: pointer; touch-action: manipulation; }
+.map-popup { cursor: default; }
+.map-popup__close { cursor: pointer; }

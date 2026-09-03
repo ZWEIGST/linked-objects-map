@@ -17,14 +17,19 @@ const isDragging = ref(false)
 const dragStart = ref({ x: 0, y: 0 })
 const startCenterPixel = ref({ x: 0, y: 0 })
 const popupOffset = ref({ x: 0, y: 0 })
+const popupMarkerId = ref<number | null>(null)
 const TILE_SIZE = 256
 const MIN_ZOOM = 3
 const MAX_ZOOM = 15
 
 const visibleMarkers = computed(() => store.visibleMarkers)
+const popupMarker = computed(() => {
+  if (popupMarkerId.value === null) return props.selectedMarker
+  return store.markers.find((marker) => marker.id === popupMarkerId.value) ?? null
+})
 const selectedPoint = computed(() => {
-  if (!props.selectedMarker) return null
-  return project(props.selectedMarker.latitude, props.selectedMarker.longitude)
+  if (!popupMarker.value) return null
+  return project(popupMarker.value.latitude, popupMarker.value.longitude)
 })
 
 function clamp(value: number, min: number, max: number) { return Math.min(max, Math.max(min, value)) }
@@ -97,6 +102,8 @@ function resize() {
   rebuildTiles()
 }
 function onPointerDown(event: PointerEvent) {
+  const target = event.target as HTMLElement | null
+  if (target?.closest('.map-marker, .map-popup, .map-controls')) return
   if (!mapEl.value) return
   isDragging.value = true
   mapEl.value.setPointerCapture(event.pointerId)
@@ -163,8 +170,32 @@ function fitAll() {
   rebuildTiles()
   void minX; void maxX; void minY; void maxY
 }
-function markerClicked(id: number) { emit('select', id) }
-function closePopup() { emit('select', null) }
+function markerClicked(id: number) {
+  const marker = store.markers.find((item) => item.id === id)
+  if (!marker || !store.visibleIds.has(id)) return
+
+  // Keep popup state local to the map so a marker click is immediately visible.
+  popupMarkerId.value = id
+  popupOffset.value = { x: 0, y: 0 }
+  store.select(id)
+  emit('select', id)
+}
+function closePopup() {
+  popupMarkerId.value = null
+  emit('select', null)
+}
+function zoomIn() {
+  const nextZoom = clamp(zoom.value + 1, MIN_ZOOM, MAX_ZOOM)
+  if (nextZoom === zoom.value) return
+  zoom.value = nextZoom
+  rebuildTiles()
+}
+function zoomOut() {
+  const nextZoom = clamp(zoom.value - 1, MIN_ZOOM, MAX_ZOOM)
+  if (nextZoom === zoom.value) return
+  zoom.value = nextZoom
+  rebuildTiles()
+}
 
 watch(() => store.visibleIds, rebuildTiles, { deep: true })
 onMounted(() => {
@@ -183,11 +214,11 @@ defineExpose({ focusMarker, fitAll })
       <img v-for="(url, index) in tileUrls" :key="`${url}-${index}`" class="map-tile" :src="url" :style="tileStyle(index)" alt="" draggable="false" />
     </div>
 
-    <div class="map-overlay">
-      <svg class="connection-layer" :viewBox="`0 0 ${mapSize.width} ${mapSize.height}`" preserveAspectRatio="none">
-        <polyline v-for="line in store.lines" :key="line.title" :points="linePoints(line.points)" fill="none" :stroke="line.color" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.78" />
-      </svg>
+    <svg class="connection-layer" :viewBox="`0 0 ${mapSize.width} ${mapSize.height}`" preserveAspectRatio="none">
+      <polyline v-for="line in store.lines" :key="line.title" :points="linePoints(line.points)" fill="none" :stroke="line.color" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.78" />
+    </svg>
 
+    <div class="marker-layer">
       <button
         v-for="marker in visibleMarkers"
         :key="marker.id"
@@ -196,25 +227,34 @@ defineExpose({ focusMarker, fitAll })
         :style="markerStyle(marker)"
         type="button"
         :aria-label="marker.title"
+        @pointerdown.stop.prevent
+        @pointerup.stop
         @click.stop="markerClicked(marker.id)"
       >
         <span class="map-marker__dot" />
         <span class="map-marker__label">{{ marker.title }}</span>
       </button>
-
-      <div v-if="props.selectedMarker && selectedPoint" class="map-popup" :style="{ left: `${selectedPoint.x + popupOffset.x}px`, top: `${selectedPoint.y + popupOffset.y}px` }" @click.stop>
-        <button class="map-popup__close" type="button" aria-label="Закрыть" @click="closePopup">×</button>
-        <div class="map-popup__eyebrow">Объект #{{ props.selectedMarker.id }}</div>
-        <h2>{{ props.selectedMarker.title }}</h2>
-        <p>{{ props.selectedMarker.description }}</p>
-        <div class="map-popup__coords">{{ props.selectedMarker.latitude.toFixed(5) }}, {{ props.selectedMarker.longitude.toFixed(5) }}</div>
-      </div>
     </div>
 
-    <div class="map-controls">
-      <button type="button" aria-label="Приблизить" @click="zoom = clamp(zoom + 1, MIN_ZOOM, MAX_ZOOM); rebuildTiles()">+</button>
-      <button type="button" aria-label="Отдалить" @click="zoom = clamp(zoom - 1, MIN_ZOOM, MAX_ZOOM); rebuildTiles()">−</button>
-      <button type="button" aria-label="Показать все" @click="fitAll">⌂</button>
+    <div
+        v-if="popupMarker && selectedPoint"
+        class="map-popup"
+        :style="{ left: `${selectedPoint.x + popupOffset.x}px`, top: `${selectedPoint.y + popupOffset.y}px` }"
+        role="dialog"
+        aria-live="polite"
+        @pointerdown.stop
+        @click.stop
+      >
+        <button class="map-popup__close" type="button" aria-label="Закрыть попап" @click="closePopup">×</button>
+        <div class="map-popup__eyebrow">Информация об объекте</div>
+        <h2>{{ popupMarker.title }}</h2>
+        <p>{{ popupMarker.description }}</p>
+    </div>
+
+    <div class="map-controls" @pointerdown.stop @pointermove.stop @pointerup.stop @wheel.stop>
+      <button type="button" aria-label="Приблизить" @click.stop="zoomIn">+</button>
+      <button type="button" aria-label="Отдалить" @click.stop="zoomOut">−</button>
+      <button type="button" aria-label="Показать все" @click.stop="fitAll">⌂</button>
     </div>
     <div class="map-attribution">© OpenStreetMap contributors</div>
   </div>

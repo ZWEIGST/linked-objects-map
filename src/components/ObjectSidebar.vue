@@ -48,12 +48,8 @@ function handleToggle(event: Event, id: number) {
       >
         <span class="object-card__color" :style="{ backgroundColor: store.colorForTitle(marker.title) }" />
         <span class="object-card__content">
-          <span class="object-card__topline">
-            <span class="object-card__title">{{ marker.title }}</span>
-            <span class="object-card__id">#{{ marker.id }}</span>
-          </span>
+          <span class="object-card__title">{{ marker.title }}</span>
           <span class="object-card__description">{{ marker.description }}</span>
-          <span class="object-card__coords">{{ marker.latitude.toFixed(4) }}, {{ marker.longitude.toFixed(4) }}</span>
         </span>
         <input
           class="object-card__checkbox"
